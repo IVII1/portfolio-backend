@@ -22,6 +22,7 @@ class CalendarEntryResource extends JsonResource
             'content' => $this->content,
             'slug' => Carbon::parse($this->slug)->format('d-m-Y'), 
             'highlighted' => $this->highlighted,
+            'type' => $this->type,
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
             'categories' => CategoryResource::collection($this->whenLoaded('categories'))

@@ -18,6 +18,7 @@ class CalendarEntry extends Model
         'content',
         'slug',
         'highlighted',
+        'type'
         /* 'references' */
     ];
    /*  protected $casts = [

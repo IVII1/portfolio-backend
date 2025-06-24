@@ -15,13 +15,7 @@ class MessageController extends Controller
         //
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+   
 
     /**
      * Store a newly created resource in storage.
@@ -39,13 +33,7 @@ class MessageController extends Controller
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Message $message)
-    {
-        //
-    }
+   
 
     /**
      * Update the specified resource in storage.

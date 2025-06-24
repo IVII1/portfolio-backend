@@ -28,7 +28,8 @@ class CalendarEntryStoreRequest extends FormRequest
             'slug' => 'string', 
             'highlighted' => 'boolean|required',
             'category_ids' => 'sometimes|array',
-            'category_ids.*' => 'exists:categories,id'
+            'category_ids.*' => 'exists:categories,id',
+            'type' => 'required|in:automated,manual'
 
         ];
     }
