@@ -12,8 +12,11 @@ class Category extends Model
         'name'
     ];
 
-    public function projects()
+    public function entries()
     {
-        return $this->belongsToMany(CalendarEntry::class);
+        return $this->hasMany(CalendarEntry::class);
+    }
+    public function categories(){
+        return $this->hasMany(Reference::class);
     }
 }

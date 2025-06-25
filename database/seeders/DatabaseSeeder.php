@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\CalendarEntry;
 use App\Models\Category;
+use App\Models\Reference;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -19,5 +20,6 @@ class DatabaseSeeder extends Seeder
 
         CalendarEntry::factory(50)->create();
         Category::factory(20)->create();
+        Reference::factory(30)->create();
     }
 }

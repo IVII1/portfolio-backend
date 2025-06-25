@@ -25,7 +25,6 @@ class CalendarEntryStoreRequest extends FormRequest
             'date_published' => 'date|required',
             'title' => 'max:255|string|required',
             'content' => 'string|required',
-            'slug' => 'string', 
             'highlighted' => 'boolean|required',
             'category_ids' => 'sometimes|array',
             'category_ids.*' => 'exists:categories,id',

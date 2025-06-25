@@ -25,7 +25,6 @@ class CalendarEntryUpdateRequest extends FormRequest
              'date_published' => 'date',
             'title' => 'max:255|string',
             'content' => 'string',
-            'slug' => 'string', 
             'highlighted' => 'boolean',
             'category_ids' => 'sometimes|array',
             'category_ids.*' => 'exists:categories,id',

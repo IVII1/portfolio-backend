@@ -17,8 +17,8 @@ class CalendarEntryController extends Controller
      */
     public function index(Request $request)
     {
-        $query = CalendarEntry::with('categories')->orderBy('date_published', 'asc');
-
+        $query = CalendarEntry::with('categories');
+        $allowedSortColumns = ['title', 'created_at', 'date_published', 'highlighted', 'type'];
         $year = $request->get('year');
         $month = $request->get('month');
         $categories = $request->get('categories');
@@ -26,6 +26,27 @@ class CalendarEntryController extends Controller
         $highlighted = $request->get('highlighted');
         $type = $request->get('type');
 
+        $sortColumn = $request->input('sort', 'date_published');
+        $direction = $request->input('order', 'asc');
+
+
+        if ($sortColumn === 'date_published') {
+            $direction = 'asc';
+        } else {
+            $direction = 'desc';
+        }
+
+
+        if (!in_array(strtolower($direction), ['asc', 'desc'])) {
+            $direction = 'desc';
+        }
+
+
+        if (in_array($sortColumn, $allowedSortColumns)) {
+            $query->orderBy($sortColumn, $direction);
+        } else {
+            $query->orderBy('date_published', 'asc');
+        }
 
         if ($year && $month) {
             if ($year > Carbon::now()->year) {
