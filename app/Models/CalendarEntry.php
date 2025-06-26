@@ -29,6 +29,6 @@ class CalendarEntry extends Model
         return $this->belongsToMany(Category::class);
     }
     public function references(){
-        return $this->hasMany(Reference::class);
+        return $this->belongsToMany(Reference::class);
     }
 }

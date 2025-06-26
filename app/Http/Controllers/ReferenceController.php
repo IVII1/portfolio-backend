@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ReferenceStoreRequest;
 use App\Http\Requests\ReferenceUpdateRequest;
 use App\Http\Resources\ReferenceResource;
 use App\Models\Reference;
-use Dotenv\Exception\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
@@ -21,22 +21,42 @@ class ReferenceController extends Controller
         $allowedSortColumns = ['count', 'created_at'];
         $sortColumn = $request->input('sort', 'id');
         $direction = $request->input('order', 'desc');
+        $categories = $request->get('categories');
+        $search = $request->get('q');
 
+      
         if (!in_array(strtolower($direction), ['asc', 'desc'])) {
             $direction = 'desc';
         }
 
         if (in_array($sortColumn, $allowedSortColumns)) {
-
             $query->orderBy($sortColumn, $direction);
         } else {
             $query->orderBy('id', 'asc');
         }
 
+        
+        if ($categories) {
+            if (is_string($categories)) {
+                $categories = explode(',', $categories);
+            }
+            
+            $query->whereHas('categories', function ($q) use ($categories) {
+                $q->whereIn('name', $categories);
+            });
+        }
 
+ 
+        if ($search) {
+            $searchTerm = trim($search);
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('source_url', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('source_name', 'LIKE', "%{$searchTerm}%");
+            });
+        }
 
-
-        $references = $query->get();
+        // Paginate results
+        $references = $query->paginate(15);
 
         return ReferenceResource::collection($references);
     }
@@ -46,16 +66,20 @@ class ReferenceController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(ReferenceStoreRequest $request)
     {
 
         $params = $request->all();
-        $reference = Reference::create($params);
+        $reference = Reference::create([
+            'source_name' => $params['source_name'],
+            'source_url' => $params['source_url'],
+            'count' => 0
+        ]);
         if ($request->has('category_ids')) {
-            $reference->categories()->sync($request->category_ids);
+            $reference->categories()->attach($request->category_ids);
         }
         if ($request->has('entry_ids')) {
-            $reference->entries()->sync($request->entry_ids);
+            $reference->entries()->attach($request->entry_ids);
         }
         $reference->load(['entries', 'categories']);
 
@@ -68,14 +92,12 @@ class ReferenceController extends Controller
     public function show(int $id)
     {
         try {
-            $reference = Reference::findOrFail($id);
+            $reference = Reference::with(['entries', 'categories'])->findOrFail($id);
+            return new ReferenceResource($reference);
         } catch (ModelNotFoundException) {
-            return response()->json(['message' => 'Reference Not Found'], 404);
+            return response()->json(['message' => 'Reference not found'], 404);
         }
-
-        return new ReferenceResource($reference);
     }
-
 
 
     /**
@@ -95,10 +117,17 @@ class ReferenceController extends Controller
 
 
         if ($request->has('category_ids')) {
-            $reference->categories()->sync($request->category_ids);
+            $reference->categories()->syncWithoutDetaching($request->category_ids);
         }
         if ($request->has('entry_ids')) {
-            $reference->entries()->sync($request->entry_ids);
+            $reference->entries()->syncWithoutDetaching($request->entry_ids);
+            $reference->update(['count' => $reference->entries()->count()]);
+        }
+        if ($request->has('remove_category_ids')) {
+            $reference->categories()->detach($request->remove_category_ids);
+        }
+        if ($request->has('remove_entry_ids')) {
+            $reference->entries()->detach($request->remove_entry_ids);
             $reference->update(['count' => $reference->entries()->count()]);
         }
 
@@ -118,6 +147,6 @@ class ReferenceController extends Controller
             return response()->json(['message' => 'Reference Not Found'], 404);
         }
         $reference->delete();
-        return response()->json(['message' => 'Entry Deleted Successfully']);
+        return response()->json(['message' => 'Reference Deleted Successfully']);
     }
 }

@@ -9,6 +9,7 @@ use App\Models\CalendarEntry;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CalendarEntryController extends Controller
 {
@@ -17,7 +18,7 @@ class CalendarEntryController extends Controller
      */
     public function index(Request $request)
     {
-        $query = CalendarEntry::with('categories');
+        $query = CalendarEntry::with(['categories', 'references']);
         $allowedSortColumns = ['title', 'created_at', 'date_published', 'highlighted', 'type'];
         $year = $request->get('year');
         $month = $request->get('month');
@@ -73,9 +74,10 @@ class CalendarEntryController extends Controller
 
 
         if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('title', 'LIKE', "%{$search}%")
-                    ->orWhere('content', 'LIKE', "%{$search}%");
+            $searchTerm = trim($search);
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('title', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('content', 'LIKE', "%{$searchTerm}%");
             });
         }
 
@@ -98,12 +100,16 @@ class CalendarEntryController extends Controller
     public function store(CalendarEntryStoreRequest $request)
     {
         $params = $request->all();
-        $params['slug'] = $params['date_published'];
+        $params['slug'] = Carbon::parse($params['date_published'])->format('d-m-Y');
         $calendarEntry = CalendarEntry::create($params);
         if ($request->has('category_ids')) {
-            $calendarEntry->categories()->sync($request->category_ids);
+            $calendarEntry->categories()->attach($request->category_ids);
         }
-        $calendarEntry->load('categories');
+        if ($request->has('reference_ids')) {
+            $calendarEntry->references()->attach($request->reference_ids);
+
+        }
+        $calendarEntry->load(['references', 'categories']);
         return new CalendarEntryResource($calendarEntry);
     }
 
@@ -113,28 +119,62 @@ class CalendarEntryController extends Controller
     public function show(string $slug)
     {
         try {
-            $calendarEntry = CalendarEntry::where('slug', $slug)->firstOrFail();
-        } catch (ModelNotFoundException $e) {
-            return response()->json(['message' => 'Entry Not Found'], 404);
+            $calendarEntry = CalendarEntry::with(['categories', 'references'])
+                ->where('slug', $slug)
+                ->firstOrFail();
+
+            return new CalendarEntryResource($calendarEntry);
+        } catch (ModelNotFoundException) {
+            return response()->json(['message' => 'Calendar entry not found'], 404);
         }
-        return new CalendarEntryResource($calendarEntry);
     }
 
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(CalendarEntryUpdateRequest $request, string $slug)
-    {
-        $calendarEntry = CalendarEntry::where('slug', $slug)->firstOrFail();
-        $params = $request->all();
+ public function update(CalendarEntryUpdateRequest $request, string $slug)
+{
+    $calendarEntry = CalendarEntry::where('slug', $slug)->firstOrFail();
+    $params = $request->all();
+    
+    DB::transaction(function () use ($calendarEntry, $request, $params) {
         if ($request->has('category_ids')) {
-            $calendarEntry->categories()->sync($request->category_ids);
+            $calendarEntry->categories()->syncWithoutDetaching($request->category_ids);
         }
+        
+        if ($request->has('reference_ids')) {
+            $existingReferenceIds = $calendarEntry->references()->pluck('references.id')->toArray();
+            
+            $newReferenceIds = array_diff($request->reference_ids, $existingReferenceIds);
+            
+            $calendarEntry->references()->syncWithoutDetaching($request->reference_ids);
+            
+           
+            if (!empty($newReferenceIds)) {
+                $this->updateReferenceCounts($newReferenceIds);
+            }
+        }
+        
+        if ($request->has('remove_category_ids')) {
+            $calendarEntry->categories()->detach($request->remove_category_ids);
+        }
+        
+        
+        if ($request->has('remove_reference_ids')) {
+            $calendarEntry->references()->detach($request->remove_reference_ids);
+            
+           
+            $this->updateReferenceCounts($request->remove_reference_ids);
+        }
+        
         $calendarEntry->update($params);
-        $calendarEntry->load('categories');
-        return new CalendarEntryResource($calendarEntry);
-    }
+    });
+    
+    $calendarEntry->load(['categories', 'references']);
+    return new CalendarEntryResource($calendarEntry);
+}
+
 
     /**
      * Remove the specified resource from storage.
@@ -145,4 +185,17 @@ class CalendarEntryController extends Controller
         $calendarEntry->delete();
         return response()->json(['message' => 'Entry Deleted Successfully']);
     }
+    private function updateReferenceCounts(array $referenceIds)
+{
+    foreach ($referenceIds as $referenceId) {
+        DB::table('references')
+            ->where('id', $referenceId)
+            ->update([
+                'count' => DB::table('calendar_entry_reference')
+                    ->where('reference_id', $referenceId)
+                    ->count(),
+                'updated_at' => now()
+            ]);
+    }
+}
 }

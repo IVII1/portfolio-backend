@@ -25,7 +25,8 @@ class CalendarEntryResource extends JsonResource
             'type' => $this->type,
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
-            'categories' => CategoryResource::collection($this->whenLoaded('categories'))
+            'categories' => CategoryResource::collection($this->whenLoaded('categories')), 
+            'references' => ReferenceResource::collection($this->whenLoaded('references'))
 
         ];
     }
