@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\CalendarEntry;
 use App\Models\Category;
+use App\Models\Project;
 use App\Models\Reference;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;

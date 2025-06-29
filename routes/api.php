@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CalendarEntryController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ReferenceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
