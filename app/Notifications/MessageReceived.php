@@ -4,10 +4,11 @@ namespace App\Notifications;
 
 use App\Models\Message;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class MessageReceived extends Notification
+class MessageReceived extends Notification implements ShouldQueue
 {
     use Queueable;
     protected Message $message;
@@ -35,7 +36,7 @@ class MessageReceived extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject($this->message->subject)
+            ->subject("You have received a new message from {$this->message->name}")
             ->greeting($this->message->name . ' has just sent you a message')
             ->line($this->message->content)
             ->line('To respond, please send an email to ' . $this->message->email)

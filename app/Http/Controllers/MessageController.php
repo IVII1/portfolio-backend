@@ -8,11 +8,14 @@ use App\Models\Message;
 use App\Notifications\MessageReceived;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 
 class MessageController extends Controller
 {
     public function store(MessageStoreRequest $request ){
+
+        Log::info('Store method called', $request->all());
         $params = $request->all();
         $params['read'] = false;
         $message = Message::create($params);

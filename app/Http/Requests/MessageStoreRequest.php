@@ -11,7 +11,7 @@ class MessageStoreRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,6 @@ class MessageStoreRequest extends FormRequest
         return [
             'name' => 'string|required|max:50',
             'email' => 'email|required',
-            'subject' => 'string|max:255',
             'content' => 'string|required'
 
         ];
