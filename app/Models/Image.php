@@ -1,0 +1,26 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Image extends Model
+{
+    protected $fillable = [
+    'image_link',
+    'slug',
+    'caption',
+    'imageable_id',
+    'imageable_type',
+    ];
+
+      public function projects()
+    {
+        return $this->morphTo(Project::class, 'imageable');
+    }
+
+    public function calendarEntries()
+    {
+        return $this->morphTo(CalendarEntry::class, 'imageable');
+    }
+}

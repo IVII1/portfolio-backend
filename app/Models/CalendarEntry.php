@@ -31,4 +31,10 @@ class CalendarEntry extends Model
     public function references(){
         return $this->belongsToMany(Reference::class);
     }
+
+    public function images()
+    {
+        return $this->morphMany(Image::class, 'imageable');
+    }
+
 }
