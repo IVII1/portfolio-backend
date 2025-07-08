@@ -15,11 +15,13 @@ class Project extends Model
         'description',
         'github_url',
         'live_url',
+        'contributors',
         'purpose',
         'type',
         'date_started',
         'language',
-        'commit_count',
+        'personal_commit_count',
+        'total_commit_count',
         'challenges',
         'features',
         'key_takeaways',
@@ -33,6 +35,7 @@ class Project extends Model
         'stack' => 'array',
         'features' => 'array',
         'gallery' => 'array',
+        'contributors' => 'array',
         'date_started' => 'datetime'
     ];
     public function images()

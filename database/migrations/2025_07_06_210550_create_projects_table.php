@@ -24,15 +24,15 @@ return new class extends Migration
             $table->string('purpose');
             $table->enum('type',['Solo Project', 'Collaboration', 'Open Source Contribution'])->default('Solo Project');
             $table->timestamp('date_started');
-            $table->integer('commit_count');
+            $table->integer('total_commit_count');
+            $table->integer('personal_commit_count');
             $table->string('language');
             $table->json('challenges');
+            $table->json('contributors');
             $table->json('features');
             $table->json('stack');
             $table->json('key_takeaways');
-            $table->json('gallery')->nullable();
             $table->timestamps();
-
         });
     }
 

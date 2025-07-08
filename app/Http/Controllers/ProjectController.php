@@ -19,7 +19,7 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        $projects = Project::with('images')->get();
+        $projects = Project::all();
         return $projects;
     }
 
@@ -47,7 +47,22 @@ class ProjectController extends Controller
             break;
         }
     }
-    $params['commit_count'] = $targetIndex !== null ? $contributorInfo[$targetIndex]['contributions'] : 0;
+      $contributors = [];
+    foreach ($contributorInfo as $contributor) {
+        if (isset($contributor['login'])) {
+            $contributors[] = $contributor['login'];
+        }
+    }
+$totalCommits = 0;
+foreach($contributorInfo as $contributor){
+    if (isset($contributor['contributions'])) {
+        $totalCommits += $contributor['contributions'];
+    }
+}
+$params['total_commit_count'] = $totalCommits;
+
+    $params['contributors'] = $contributors;
+    $params['personal_commit_count'] = $targetIndex !== null ? $contributorInfo[$targetIndex]['contributions'] : 0;
     $gallery = $request->file('gallery', []);
     unset($params['gallery']);
 
@@ -77,6 +92,7 @@ class ProjectController extends Controller
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Project Not Found'], 404);
         }
+        $project->load('images');
         return new ProjectResource($project);
     }
 

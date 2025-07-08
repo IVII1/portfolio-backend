@@ -11,7 +11,7 @@ class ProjectUpdateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -38,7 +38,7 @@ class ProjectUpdateRequest extends FormRequest
             'key_takeaways.*' => 'string|distinct',
             'features.*' => 'string|distinct',
             'challenges.*' => 'string|distinct',
-            'gallery' => 'array|required|min:1',
+            'gallery' => 'array|min:1',
             'gallery.*' => 'file|image|max:2048',
 
         ];

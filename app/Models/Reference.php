@@ -10,7 +10,7 @@ class Reference extends Model
     use HasFactory;
     protected $fillable = [
         'source_name',
-        'source_link',
+        'source_url',
         'count'
     ];
    
