@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('owner');
             $table->string('repo');
-            $table->string('title');
+            $table->string('title')->unique();
             $table->string('slug');
             $table->text('subtitle');
             $table->text('description');

@@ -7,20 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 class Image extends Model
 {
     protected $fillable = [
-    'image_link',
-    'slug',
-    'caption',
-    'imageable_id',
-    'imageable_type',
+        'project_id',
+        'image_url',
+        'caption',
     ];
 
-      public function projects()
+    public function projects()
     {
-        return $this->morphTo(Project::class, 'imageable');
+        return $this->belongsTo(Project::class);
     }
 
-    public function calendarEntries()
-    {
-        return $this->morphTo(CalendarEntry::class, 'imageable');
-    }
 }

@@ -13,10 +13,9 @@ return new class extends Migration
     {
         Schema::create('images', function (Blueprint $table) {
             $table->id();
-            $table->string('image_link');
-            $table->string('slug')->nullable()->unique();
+            $table->foreignId('project_id')->constrained()->cascadeOnDelete();
+            $table->string('image_url');
             $table->string('caption')->nullable();
-            $table->morphs('imageable');
             $table->timestamps();
         });
     }

@@ -11,7 +11,7 @@ class ImageUpdateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return false;
     }
 
     /**
@@ -22,9 +22,9 @@ class ImageUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'image_link' => 'url',
+            'image' => 'file|image|max:2048',
+            'project_id' => 'exists:projects,id',
             'caption' => 'string',
-            'slug' => 'string'
         ];
     }
 }

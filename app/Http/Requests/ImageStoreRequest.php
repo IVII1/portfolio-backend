@@ -11,7 +11,7 @@ class ImageStoreRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,9 +22,10 @@ class ImageStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'image_link' => 'url',
-            'caption' => 'string',
-            'slug' => 'string'
+            'image' => 'required|file|image|max:2048',
+            'project_id' => 'required|exists:projects,id|integer',
+            'caption' => 'required|string',
+            
         ];
     }
 }

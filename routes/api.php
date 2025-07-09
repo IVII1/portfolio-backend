@@ -2,6 +2,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CalendarEntryController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ImageController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ReferenceController;
@@ -20,6 +21,7 @@ Route::apiResource('/messages', MessageController::class)->only('store');
 Route::apiResource('/categories', CategoryController::class)->only('index', 'show');
 Route::apiResource('/skills', SkillController::class)->only('index', 'show');
 Route::apiResource('/projects', ProjectController::class)->only('index', 'show');
+Route::apiResource('/images', ImageController::class)->only('index', 'show');
 
 
 
@@ -34,6 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('/calendar-entries', CalendarEntryController::class)->except('index', 'show');
     Route::apiResource('/references', ReferenceController::class)->except('index', 'show');
     Route::apiResource('/categories', CategoryController::class)->except('index', 'show');
+    Route::apiResource('/images', ImageController::class)->except('index', 'show');
     
  
     Route::get('/messages/unread-count', [MessageController::class, 'unreadCount']);

@@ -26,7 +26,6 @@ class Project extends Model
         'features',
         'key_takeaways',
         'stack',
-        'gallery'
     ];
 
     protected $casts = [
@@ -34,12 +33,11 @@ class Project extends Model
         'key_takeaways' => 'array',
         'stack' => 'array',
         'features' => 'array',
-        'gallery' => 'array',
         'contributors' => 'array',
         'date_started' => 'datetime'
     ];
     public function images()
     {
-        return $this->morphMany(Image::class, 'imageable');
+        return $this->hasMany(Image::class);
     }
 }
